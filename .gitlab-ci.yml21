@@ -1,0 +1,166 @@
+# This file is a template, and might need editing before it works on your project.
+# This is a sample GitLab CI/CD configuration file that should run without any modifications.
+# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
+# it uses echo commands to simulate the pipeline execution.
+#
+# A pipeline is composed of independent jobs that run scripts, grouped into stages.
+# Stages run in sequential order, but jobs within stages run in parallel.
+#
+# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
+#
+# You can copy and paste this template into a new `.gitlab-ci.yml` file.
+# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
+#
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+
+stages:          # List of stages for jobs, and their order of execution
+  # - build
+  # - test
+  #- quality
+  - package
+  - security
+  # - deploy
+
+
+# build-job:       # This job runs in the build stage, which runs first.
+#   stage: build
+#   image:
+#     name: maven:3.6.3-jdk-11
+#   tags:
+#     - docker-runner
+#   script:
+#     - mvn clean install
+#     - mvn clean package
+#   allow_failure: true
+
+
+# unit-test-job:   # This job runs in the test stage.
+#   stage: test    # It only starts when the job in the build stage completes successfully.
+#   image:
+#     name: maven:3.6.3-jdk-11
+#   tags:
+#     - docker-runner
+#   script:
+#     - mvn test
+
+
+# code_quality_job:
+#   stage: quality
+#   allow_failure: true
+#   image:
+#     name: docker:stable
+#   tags:
+#     - docker-runner
+#   services:
+#     - docker:dind
+#   script:
+#     - mkdir codequality-results
+#     - docker run
+#         --env CODECLIMATE_CODE="$PWD"
+#         --volume "$PWD":/code
+#         --volume /var/run/docker.sock:/var/run/docker.sock
+#         --volume /tmp/cc:/tmp/cc
+#         codeclimate/codeclimate analyze -f html > ./codequality-results/index.html
+#   artifacts:
+#     paths:
+#       - codequality-results/
+
+package_job:
+  stage: package
+  image:
+    name: docker:stable
+  tags:
+    - docker-runner
+  services:
+    - docker:stable-dind
+  before_script:
+    - echo $DOCKER_HOST
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY  
+  script:
+    - docker image build -t gitlab.abidjan.lan:5050/moses/spring-actuator-test-main .
+    - docker image push gitlab.abidjan.lan:5050/moses/spring-actuator-test-main:latest
+
+
+container_scanning:
+  stage: security
+  image:
+    name: docker.io/aquasec/trivy:latest
+    entrypoint: [""]
+  services:
+    - docker:stable-dind
+  variables:
+    # No need to clone the repo, we exclusively work on artifacts.  See
+    # https://docs.gitlab.com/ee/ci/runners/README.html#git-strategy
+    GIT_STRATEGY: none
+    TRIVY_USERNAME: "$CI_REGISTRY_USER"
+    TRIVY_PASSWORD: "$CI_REGISTRY_PASSWORD"
+    TRIVY_AUTH_URL: "$CI_REGISTRY"
+    TRIVY_NO_PROGRESS: "true"
+    TRIVY_CACHE_DIR: ".trivycache/"
+    CS_IMAGE: gitlab.abidjan.lan:5050/moses/spring-actuator-test-main:latest
+   
+
+  script:
+    - trivy --version
+    # cache cleanup is needed when scanning images with the same tags, it does not remove the database
+    - time trivy image --clear-cache
+    # update vulnerabilities db
+    - time trivy image --download-db-only
+    # Builds report and puts it in the default workdir $CI_PROJECT_DIR, so `artifacts:` can take it from there
+    - time trivy image --exit-code 0 --format template --template "@/contrib/gitlab.tpl"
+        --output "$CI_PROJECT_DIR/gl-container-scanning-report.json" "$CS_IMAGE"
+    # Prints full report
+    - time trivy image --exit-code 0 "$CS_IMAGE"
+    # Fail on critical vulnerabilities
+    - time trivy image --exit-code 0 --severity CRITICAL "$CS_IMAGE"
+  cache:
+    paths:
+      - .trivycache/
+  # Enables https://docs.gitlab.com/ee/user/application_security/container_scanning/ (Container Scanning report is available on GitLab EE Ultimate or GitLab.com Gold)
+  
+  artifacts:
+    when:                          always
+    reports:
+      container_scanning:          gl-container-scanning-report.json
+  tags:
+    - docker-runner
+
+# deploy_staging_job:
+#   stage: deploy
+#   image: docker:stable
+#   tags:
+#     - docker-runner
+#   services:
+#     - docker:stable-dind
+#   script: 
+#     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+#     - docker container rm -f spring-actuator-test-staging || true
+#     - docker image pull gitlab.abidjan.lan:5050/moses/spring-actuator-test-main:latest
+#     - docker container run -d -p 30001:8093 --name spring-actuator-test-staging gitlab.abidjan.lan:5050/moses/spring-actuator-test-main:latest
+#   environment:
+#     name: staging
+#     url: http://192.168.56.50:30001
+
+
+
+
+# deploy_prod_job:
+#   stage: deploy
+#   image: docker:stable
+#   tags:
+#     - docker-runner
+#   services:
+#     - docker:stable-dind
+#   script: 
+#     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+#     - docker container rm -f spring-actuator-test-prod || true
+#     - docker image pull gitlab.abidjan.lan:5050/moses/spring-actuator-test-main:latest
+#     - docker container run -d -p 8093:8093 --name spring-actuator-test-prod gitlab.abidjan.lan:5050/moses/spring-actuator-test-main:latest
+#     - docker rmi $(docker images -q --filter "dangling=true")
+#   environment:
+#     name: prod
+#     url: http://192.168.56.60:8093
+#   when: manual

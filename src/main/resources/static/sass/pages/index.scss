@@ -1,0 +1,341 @@
+// -----------------------------------//
+//   VARIABLES/MIXINS/PLACEHOLDERS    // 
+// -----------------------------------// 
+@import '../global';
+// -----------------------------------//
+//          Specifical code           // 
+// -----------------------------------// 
+.index_page{
+    line-height: 1.5;
+    font-family: $roboto;
+}
+%header_footer_style{
+    @include container-desktop;
+    background-color: $tolopea;
+    & .logo{
+        @extend %default_figure;
+    }
+    a{
+        @extend %default_a;
+        color: $tulip_tree;
+        &:hover{
+            opacity: 0.8;
+        }
+    }
+}
+.header{
+    @extend %header_footer_style;
+    text-align: center;
+    &, & .menus_link{
+        @include align-items-center;
+    }
+    & .menu_item{
+        &:nth-child(2n){
+            margin: 0 20px;
+        }
+    }
+}
+.footer{
+    @extend %header_footer_style;
+    padding-bottom: 50px;
+    color: $tulip_tree;
+    & .logo{
+        @include justify-content-center;
+    }
+    & .navigations_tools{
+        display: flex;
+        justify-content: space-around;
+        & ul{
+            @extend %default_ul;
+        }
+        & .newsletters_form{
+            &, & input{
+                background-color: $white;
+                border-radius: 20px;
+            }
+            & input{
+                padding: 10px;
+                outline: none;
+                border: none;
+            }
+            & .input_email{
+                min-width: 200px;
+            }
+            & .subscribe{
+                color: $white;
+                background-color: $tulip_tree;
+                min-width: 100px;
+            }
+        }
+    }
+}
+// Main contents
+.main_contents{
+    & .support{
+        display: flex;
+        margin-top: 20px;
+        justify-content: space-between;
+        & .see_more{
+            @extend %default_a;
+            @include button;
+            padding: 20px;
+        }
+    }
+    & #ci-cd-monitoring-kezako, & #integration-continue-ci, & #monitoring-surveillance-automatisee,& .join_us{
+        @include container-desktop;
+    }
+    & #ci-cd-monitoring-kezako{
+        background-image: url("../images/statistic.jpg");
+        background-size:cover;
+        background-position: center;
+        padding-top: 3rem;
+        padding-bottom: 3rem; 
+        @include cacheBanner($spicy_mix,0.3);
+        & .title{
+            color: $tolopea;
+            text-align: center;
+            margin-top: 0;
+        }
+        & .description{
+            position: relative;
+            z-index: 2;
+            color: white;
+            max-width: 500px;
+            & .support{
+                & .see_the_document, & .contact_us{
+                    color: white;
+                }
+                & .see_the_document{
+                    background: $spicy_mix;
+                }
+                & .contact_us{
+                    background: $tolopea;
+                }
+            }
+        }
+    }
+    & #integration-continue-ci {
+        margin: 3rem auto;
+        & .title{
+            text-align: center;
+        }
+        & .avantages_container{
+            & .avantages_list{
+                @include justify-content-center;
+                @extend %default_ul;
+                & .advantage{
+                    border-radius: 25px;
+                    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+                    max-width: 300px;
+                    margin-bottom: 3rem;
+                    position: relative;
+                    &:nth-child(2n){
+                        margin-left: 20px;
+                        margin-right: 20px;
+                    }
+                    & .team_work, & .code_test, & .deploy_application{
+                        @extend %default_figure;
+                        @include align-items-center;
+                        @include cacheBanner($tolopea,0.3);
+                        &, &::before{
+                            border-top-left-radius: 25px;
+                            border-top-right-radius: 25px;
+                        }
+                        height: 10rem;
+                        background-size: cover;
+                        & .description{
+                            text-align: center;
+                            padding: 0 20px;
+                            width: 100%;
+                            color: white;
+                            z-index: 2;
+                        }                        
+                    }
+                    & .content{
+                        padding: 20px;
+                    }
+                    & .more{
+                        @extend %default_a;
+                        text-align: center;
+                        color: $tulip_tree;
+                        @media screen and (min-width:1024px) {
+                            position: absolute;
+                            bottom: 20px;
+                            width: 100%;
+                            left: 0;
+                        }
+                    }
+                    & .team_work{
+                        background-image: url("../images/team_work.jpg");
+                    }
+                    & .code_test{
+                        background-image: url("../images/code_test.jpg");
+                    }
+                    & .deploy_application{
+                        background-image: url("../images/deploy_application.jpg");
+                    }
+                }
+            }
+        }
+        & #support-integration-continue{
+            text-align: center;
+            & .list_support{
+                @extend %default_ul;
+                display: flex;
+                justify-content: space-around;
+                & .see_the_document, & .contact_us{
+                    display: block;
+                    @include button;
+                    margin: 1.5rem 0 0;
+                    padding: 20px;
+                    color: white;
+                    @extend %default_a;
+                }
+                & .see_the_document{
+                    background: $tolopea;
+                }
+                & .contact_us{
+                    background: $spicy_mix;
+                }
+            }
+        }
+    }
+    & #livraison-continue-vs-deploiement-continu{
+        & .title{
+            text-align: center;
+            margin-bottom: 3rem;
+            @include container-desktop;
+            padding-top: 70px;
+            padding-bottom: 70px;
+            z-index: 2;
+            color: $tulip_tree;
+            background: linear-gradient(90deg, $tolopea 5%, $spicy_mix 100%);
+        }
+        & #livraison-continue-cd, & #deploiement-continu-cd{
+            display: flex;
+            margin: 3rem 0;
+            @include container-desktop;
+            & .subtitle{
+                text-align: center;
+            }
+        }
+        & #deploiement-continu-cd{
+            flex-direction: row-reverse;
+        }
+        & .explanation,& .continuous_delivery, & .continuous_deployement{
+            max-width: 500px;
+            width: 100%;
+        }
+        & .explanation{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            & a{
+                @extend %default_a;
+                color: $tulip_tree;
+            }
+            & .support{
+                & .see_the_document, & .contact_us{
+                    color: white;
+                }
+                & .see_the_document{
+                    background: $spicy_mix;
+                }
+                & .contact_us{
+                    background: $tolopea;
+                }
+            }
+        }
+        & .continuous_delivery, & .continuous_deployement{
+            @extend %default_figure;
+            min-height: 300px;
+            background-size: cover;
+        }
+        & .continuous_delivery{
+            background-image: url("../images/deploy_application.jpg");
+            background-position: 10px 33%;
+            margin-right: 20px;
+        }
+        & .continuous_deployement{
+            background-image: url("../images/push_button.jpg");
+            background-position: 0 30%;
+            margin-left: 20px;
+        }
+    }
+    & #monitoring-surveillance-automatisee{
+        background-image: url("../images/monitoring.JPG");
+        background-size: cover;
+        @include cacheBanner($white,0.3);
+        &::before{
+            background: linear-gradient(90deg, $tolopea 5%, $spicy_mix 100%);
+        }
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+        line-height: 2;
+        & .title{
+            text-align: center;
+            color: $tulip_tree;
+        }
+        & .title, & .description{
+            z-index: 2;
+            position: relative;
+        }
+        & .description{
+            border-radius: 20px;
+            background-color: $white;
+            max-width: 300px;
+            margin: auto;
+            padding: 20px;
+            & .content{
+                text-align: justify;
+            }
+        }
+        & .support{
+            flex-wrap: wrap;
+            & .see_the_document, & .contact_us{
+                color: white;
+                margin-bottom: 20px;
+                width: 100%;
+                text-align: center;
+            }
+            & .see_the_document{
+                background: $spicy_mix;
+            }
+            & .contact_us{
+                background: $tolopea;
+            }
+        }
+    }
+    & .join_us{
+        padding-top: 70px;
+        padding-bottom: 70px;
+        @include cacheBanner($white, 1);
+        &::before{
+            background: linear-gradient(90deg, $tolopea 0%, $spicy_mix 100%);
+        }
+        & #contactez-nous, & .support{
+            position: relative;
+            z-index: 2;
+        }
+        & #contactez-nous{
+            text-align: center;
+            color: $tulip_tree;
+            & .slogan{
+                display: block;
+                font-size: small;
+            }
+        }
+        & .support{
+            align-items: center;
+            & .call_us, & .write_us{
+                color: white;
+            }
+            & .call_us{
+                background: $spicy_mix;
+            }
+            & .write_us{
+                background: $tolopea;
+            }
+        }
+    }
+}
